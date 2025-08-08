@@ -1,5 +1,9 @@
 import { NoteEditor } from '@/features/notes/NoteEditor';
 
 export default function Home() {
-  return <NoteEditor />;
+  return (
+    <div>
+      <NoteEditor />
+    </div>
+  );
 }

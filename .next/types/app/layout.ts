@@ -1,4 +1,4 @@
-// File: /Users/chrisputsch/Library/Mobile Documents/com~apple~CloudDocs/Three29two LLC/Kairos/kairos6/src/app/layout.tsx
+// File: /Users/chrisputsch/Library/Mobile Documents/com~apple~CloudDocs/Three29two LLC/Kairos/kairos6.1/src/app/layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

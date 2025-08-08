@@ -10,6 +10,7 @@ interface NotesStore extends NoteStore {
   // Actions
   createNote: () => void;
   updateNote: (id: string, content: string) => void;
+  updateNoteTags: (id: string, tags: string[]) => void;
   setCurrentNote: (id: string) => void;
   navigateToPrevious: () => void;
   navigateToNext: () => void;
@@ -35,7 +36,7 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
       content: '',
       date: today,
       title: 'Untitled Note',
-      tags: [],
+      tags: ['work', 'personal', 'projects'], // Sample tags for testing
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -55,6 +56,20 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
               ...note,
               content,
               title: generateNoteTitle(content),
+              updatedAt: new Date().toISOString(),
+            }
+          : note
+      ),
+    }));
+  },
+
+  updateNoteTags: (id: string, tags: string[]) => {
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id
+          ? {
+              ...note,
+              tags,
               updatedAt: new Date().toISOString(),
             }
           : note

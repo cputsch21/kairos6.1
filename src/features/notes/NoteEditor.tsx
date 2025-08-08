@@ -7,7 +7,7 @@
  * Centered, distraction-free layout with tons of white space.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotesStore } from '@/stores/useNotesStore';
 import { useUIStore } from '@/stores/useUIStore';
@@ -17,7 +17,6 @@ import { TipTapEditor } from './TipTapEditor';
 import { DateDisplay } from './DateDisplay';
 import { TagBar } from './TagBar';
 import { CarouselDot } from './CarouselDot';
-import { MainMenu } from './MainMenu';
 
 export const NoteEditor: React.FC = () => {
   const {
@@ -25,12 +24,14 @@ export const NoteEditor: React.FC = () => {
     currentNoteId,
     createNote,
     updateNote,
+    updateNoteTags,
     getCurrentNote,
     getNotesForToday,
   } = useNotesStore();
 
   const { colorMode, isTagBarOpen, toggleTagBar, setTagBarOpen } = useUIStore();
   const colors = getColorModeClasses(colorMode);
+  const [isEditorHovered, setIsEditorHovered] = useState(false);
 
   // Initialize keyboard shortcuts
   useKeyboardShortcuts();
@@ -38,6 +39,7 @@ export const NoteEditor: React.FC = () => {
   // Create initial note if none exist
   useEffect(() => {
     if (notes.length === 0) {
+      console.log('Creating initial note');
       createNote();
     }
   }, [notes.length, createNote]);
@@ -54,61 +56,135 @@ export const NoteEditor: React.FC = () => {
 
   // Handle tag deletion
   const handleTagDelete = (tagToDelete: string) => {
-    if (currentNote) {
+    if (currentNote && currentNoteId) {
       const updatedTags = currentNote.tags.filter(tag => tag !== tagToDelete);
-      // Update note with new tags (this would need to be added to the store)
-      console.log('Delete tag:', tagToDelete);
+      updateNoteTags(currentNoteId, updatedTags);
     }
   };
 
+  // Show loading state while no note exists
   if (!currentNote) {
+    console.log('No current note:', { notesLength: notes.length, currentNoteId });
     return (
       <div className={`min-h-screen ${colors.bg} flex items-center justify-center`}>
         <div className={`text-lg ${colors.textSecondary} font-sans`}>
-          Loading...
+          Loading... ({notes.length} notes)
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${colors.bg} relative`}>
-      {/* Date Display */}
-      <DateDisplay date={currentNote.date} />
-
-      {/* Tag Bar */}
-      <TagBar
-        isOpen={isTagBarOpen}
-        onToggle={toggleTagBar}
-        tags={currentNote.tags}
-        onTagDelete={handleTagDelete}
-      />
-
+    <div className="min-h-screen relative" style={{ background: 'linear-gradient(90deg, #FFF 0%, #F2F6F8 100%)' }}>
       {/* Carousel Dot */}
       <CarouselDot />
 
-      {/* Main Menu */}
-      <MainMenu />
+      {/* Main Editor Container */}
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="relative w-full max-w-[1000px] px-6">
+          {/* Editor Content Container */}
+          <div className="relative min-h-[60vh]">
+            {/* Date Display - positioned above text editor aligned to right edge */}
+            <div className="flex justify-end mb-4">
+              <DateDisplay date={currentNote.date} />
+            </div>
 
-      {/* Editor Area */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-4xl px-6 pt-24 pb-32">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentNote.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="min-h-[60vh]"
-            >
-              <TipTapEditor
-                content={currentNote.content}
-                onUpdate={handleContentUpdate}
-                placeholder="Start typing..."
-              />
-            </motion.div>
-          </AnimatePresence>
+            {/* Tag Bar Space - always present, 30px below date */}
+            <div className="mb-4 min-h-[40px] flex items-center">
+              <AnimatePresence>
+                {isTagBarOpen && (
+                  <div className="flex items-center">
+                    {/* Tag Icon - first element in tag bar */}
+                    <div 
+                      className="mr-2 cursor-pointer"
+                      onMouseEnter={() => setIsEditorHovered(true)}
+                      onMouseLeave={() => {
+                        setTimeout(() => setIsEditorHovered(false), 1000);
+                      }}
+                    >
+                      <button
+                        onClick={toggleTagBar}
+                        className="p-2 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
+                        title={isTagBarOpen ? "Close tags" : "Toggle tags"}
+                      >
+                        <svg
+                          className="w-4 h-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <TagBar
+                      isOpen={isTagBarOpen}
+                      onToggle={toggleTagBar}
+                      tags={currentNote.tags}
+                      onTagDelete={handleTagDelete}
+                    />
+                  </div>
+                )}
+              </AnimatePresence>
+
+              {/* Tag Icon - when tag bar is closed, appears on hover */}
+              {!isTagBarOpen && (
+                <div 
+                  className="w-8 h-8 cursor-pointer"
+                  onMouseEnter={() => setIsEditorHovered(true)}
+                  onMouseLeave={() => {
+                    setTimeout(() => setIsEditorHovered(false), 1000);
+                  }}
+                >
+                  {isEditorHovered && (
+                    <button
+                      onClick={toggleTagBar}
+                      className="p-2 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
+                      title="Toggle tags"
+                    >
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Editor Content - no border */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentNote.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="min-h-[50vh]"
+              >
+                <TipTapEditor
+                  content={currentNote.content}
+                  onUpdate={handleContentUpdate}
+                  placeholder="Start typing..."
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

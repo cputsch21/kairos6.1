@@ -48,8 +48,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Source Sans Pro', 'system-ui', 'sans-serif'],
-        raleway: ['Raleway', 'system-ui', 'sans-serif'],
+        raleway: ['Raleway', 'sans-serif'],
+        sourcesans: ['"Source Sans Pro"', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       animation: {

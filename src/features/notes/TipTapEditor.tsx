@@ -40,7 +40,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     content,
     editorProps: {
       attributes: {
-        class: `prose prose-lg max-w-none focus:outline-none ${colors.text} font-raleway leading-relaxed`,
+        class: `prose prose-lg max-w-none focus:outline-none text-gray-800 font-raleway leading-relaxed min-h-[50vh]`,
       },
     },
     onUpdate: ({ editor }) => {
@@ -59,9 +59,9 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
   useEffect(() => {
     if (editor) {
       const element = editor.view.dom as HTMLElement;
-      element.className = `prose prose-lg max-w-none focus:outline-none ${colors.text} font-raleway leading-relaxed`;
+      element.className = `prose prose-lg max-w-none focus:outline-none text-gray-800 font-raleway leading-relaxed min-h-[50vh]`;
     }
-  }, [colorMode, colors.text, editor]);
+  }, [colorMode, editor]);
 
   if (!editor) {
     return null;
@@ -72,7 +72,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-full min-h-[60vh]"
+      className="w-full"
     >
       <EditorContent editor={editor} />
     </motion.div>

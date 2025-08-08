@@ -22,19 +22,15 @@ export const DateDisplay: React.FC<DateDisplayProps> = ({ date }) => {
   const colors = getColorModeClasses(colorMode);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
+    <motion.button
+      initial={{ opacity: 0, y: -5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed top-6 right-6 z-40"
+      onClick={toggleDatePicker}
+      className={`text-sm text-gray-600 hover:text-gray-800 transition-colors cursor-pointer font-medium font-raleway`}
+      title="Click to change date"
     >
-      <button
-        onClick={toggleDatePicker}
-        className={`text-sm ${colors.textSecondary} hover:${colors.text} transition-colors cursor-pointer font-medium font-raleway`}
-        title="Click to change date"
-      >
-        {formatDate(date)}
-      </button>
-    </motion.div>
+      {formatDate(date)}
+    </motion.button>
   );
 };
